@@ -1,0 +1,67 @@
+<form id="frmPinSend" onsubmit="checkform(); return false;" method="get">
+	<p id="alert-not-going" style="display: none;">Pin invalid</p>
+	<small>Numeros pares devuelven una validacion incorrecta. Numeros pares devuelven una validacion correcta.</small><br>
+  <input type="number" name="txtPinNumber" id="txtPinNumber" class="txtPinNumber" />
+  <br>
+  <input type="submit" name="btnSend" id="btnSend" value="validar pin" />
+</form>
+<script>
+hideMessage = function(){
+	setTimeout(() => {
+		document.getElementById("alert-not-going").style.display="none";
+		
+	}, 2000);
+	
+}
+checkPinCode = function(pin){
+	var request = new XMLHttpRequest();
+	request.open('GET', 'https://progrenters-pin-responder.herokuapp.com/?pin=' + pin, true);
+
+	request.onload = function() {
+	  if (request.status >= 200 && request.status < 400) {
+		// Success!
+		var data = JSON.parse(request.responseText);
+		if (data.pass){
+			allowHiddenPage(true);
+		} else {
+			allowHiddenPage(false);
+		}
+	  } else {
+		// We reached our target server, but it returned an error
+		console.log("nope");
+		allowHiddenPage(false);
+
+	  }
+	};
+
+	request.onerror = function() {
+	  // There was a connection error of some sort
+	  console.log("nope, twice");
+	  allowHiddenPage(false);
+	};
+
+	request.send();	
+}
+
+allowHiddenPage = function(going){
+ if (going){
+ 	//document.location.href = "http://mentor.progrentis.com/Publicas/Taller.aspx"
+	sessionStorage.setItem('viewPage', 'yes')
+ 	document.location.href = "/hidden-page"
+ } else {
+ 	document.getElementById("alert-not-going").style.display="block";
+	hideMessage()
+ }
+}
+
+checkform = function(){
+	currentPin = document.getElementById('txtPinNumber').value;
+	if (!isNaN(currentPin) && currentPin > 1000){
+		checkPinCode(currentPin);
+	} else {
+		allowHiddenPage(false);
+	}
+	return false;
+}
+
+</script>
